@@ -1,0 +1,146 @@
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+  z-index: 100;
+  animation: overlayFadeIn var(--duration-feedback) var(--easing-default);
+}
+
+.settings-drawer {
+  background: var(--color-background);
+  border-radius: var(--radius-xl);
+  width: 90%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow: auto;
+  animation: drawerSlideIn var(--duration-normal) var(--easing-out);
+}
+
+.settings-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.settings-drawer__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+.settings-drawer__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-lg);
+  color: var(--color-foreground);
+}
+
+.settings-drawer__close:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.settings-drawer__close:focus-visible {
+  outline: 3px solid var(--color-foreground);
+  outline-offset: 2px;
+}
+
+.settings-drawer__content {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.settings-drawer__section {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-drawer__footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.settings-drawer__done {
+  width: 100%;
+  min-height: var(--button-min-height);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-background);
+  background: var(--color-foreground);
+  border: none;
+  border-radius: var(--radius-xl);
+  transition: transform var(--duration-fast) var(--easing-default);
+}
+
+.settings-drawer__done:active {
+  transform: scale(0.96);
+}
+
+.settings-drawer__done:focus-visible {
+  outline: 3px solid var(--color-foreground);
+  outline-offset: 4px;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* iPad landscape - center drawer more */
+@media (min-width: 1024px) and (orientation: landscape) {
+  .settings-overlay {
+    padding-top: 15vh;
+  }
+  
+  .settings-drawer {
+    max-width: 520px;
+  }
+  
+  .settings-drawer__title {
+    font-size: 1.75rem;
+  }
+  
+  .settings-drawer__done {
+    font-size: 1.375rem;
+  }
+}
+
+/* Smaller screens - full width */
+@media (max-width: 600px) {
+  .settings-overlay {
+    padding-top: 5vh;
+  }
+  
+  .settings-drawer {
+    width: 95%;
+    max-height: 90vh;
+  }
+}

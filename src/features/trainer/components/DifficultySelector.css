@@ -1,0 +1,66 @@
+.difficulty-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.difficulty-selector__label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.difficulty-selector__options {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.difficulty-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-md);
+  min-height: 64px;
+  background: var(--color-background);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: border-color var(--duration-feedback) var(--easing-default);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.difficulty-btn:active:not(:disabled) {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.difficulty-btn--selected {
+  border-color: var(--btn-color);
+}
+
+.difficulty-btn:focus-visible {
+  outline: 3px solid var(--color-foreground);
+  outline-offset: 2px;
+}
+
+.difficulty-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.difficulty-btn__emoji {
+  font-size: 1.5rem;
+}
+
+.difficulty-btn__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.difficulty-btn--selected .difficulty-btn__label {
+  color: var(--btn-color);
+}

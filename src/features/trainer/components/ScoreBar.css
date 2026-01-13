@@ -1,0 +1,25 @@
+.score-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.score-bar__progress {
+  font-weight: 500;
+}
+
+.score-bar__separator {
+  opacity: 0.5;
+}
+
+.score-bar__score {
+  font-weight: 500;
+}
+
+.score-bar__score strong {
+  font-weight: 700;
+  color: var(--color-foreground);
+}

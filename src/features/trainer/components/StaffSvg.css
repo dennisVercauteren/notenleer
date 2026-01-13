@@ -1,0 +1,17 @@
+.staff-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.staff-line {
+  stroke: var(--color-staff-line);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.staff-clef {
+  font-family: var(--font-music);
+  font-size: 40px;
+  fill: var(--color-staff-line);
+}

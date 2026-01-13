@@ -1,0 +1,262 @@
+/* Grid layout for trainer */
+.trainer-layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header"
+    "staff"
+    "controls";
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--spacing-lg);
+  gap: var(--spacing-md);
+  background: var(--color-background);
+}
+
+/* Header */
+.trainer-header {
+  grid-area: header;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  min-height: 48px;
+}
+
+.settings-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: transparent;
+  border: 2px solid var(--color-foreground);
+  border-radius: var(--radius-lg);
+  color: var(--color-foreground);
+  transition: background var(--duration-feedback) var(--easing-default);
+}
+
+.settings-button:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.settings-button:focus-visible {
+  outline: 3px solid var(--color-foreground);
+  outline-offset: 2px;
+}
+
+/* Staff area */
+.trainer-staff {
+  grid-area: staff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Placeholder when not active */
+.trainer-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.placeholder-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-foreground);
+}
+
+.placeholder-subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-muted);
+}
+
+/* Controls area */
+.trainer-controls {
+  grid-area: controls;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: var(--spacing-lg);
+}
+
+/* Start panel */
+.start-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xl);
+}
+
+.highscores-display {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.highscore-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  min-width: 80px;
+}
+
+.highscore-item small {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+.highscore-item strong {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.highscore-value--easy {
+  color: var(--color-easy);
+}
+
+.highscore-value--medium {
+  color: var(--color-medium);
+}
+
+.highscore-value--hard {
+  color: var(--color-hard);
+}
+
+/* Primary button */
+.primary-button {
+  min-width: 240px;
+  min-height: 80px;
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-background);
+  background: var(--color-foreground);
+  border: none;
+  border-radius: var(--radius-xl);
+  transition: transform var(--duration-fast) var(--easing-default);
+}
+
+.primary-button:active {
+  transform: scale(0.96);
+}
+
+.primary-button:focus-visible {
+  outline: 3px solid var(--color-foreground);
+  outline-offset: 4px;
+}
+
+/* Complete panel */
+.complete-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  text-align: center;
+}
+
+.complete-message {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+.complete-score {
+  font-size: 1.125rem;
+  color: var(--color-text-muted);
+}
+
+.complete-score strong {
+  font-size: 1.5rem;
+  color: var(--color-foreground);
+}
+
+/* iPad Pro landscape (primary target - 1366x1024) */
+@media (min-width: 1024px) and (orientation: landscape) {
+  .trainer-layout {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    gap: var(--spacing-lg);
+  }
+  
+  .placeholder-title {
+    font-size: 3.5rem;
+  }
+  
+  .placeholder-subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .primary-button {
+    min-width: 240px;
+    font-size: 1.375rem;
+  }
+  
+  .complete-message {
+    font-size: 2rem;
+  }
+  
+  .complete-score {
+    font-size: 1.25rem;
+  }
+  
+  .complete-score strong {
+    font-size: 1.75rem;
+  }
+}
+
+/* iPad portrait */
+@media (max-width: 1024px) and (orientation: portrait) {
+  .trainer-layout {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+  
+  .trainer-controls {
+    padding-bottom: var(--spacing-lg);
+  }
+  
+  .placeholder-title {
+    font-size: 2.25rem;
+  }
+}
+
+/* Smaller screens */
+@media (max-width: 768px) {
+  .trainer-layout {
+    padding: var(--spacing-md);
+  }
+  
+  .placeholder-title {
+    font-size: 2rem;
+  }
+  
+  .trainer-controls {
+    padding-bottom: var(--spacing-md);
+  }
+}
+
+/* Safe area support for devices with notches */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .trainer-layout {
+    padding-top: max(var(--spacing-lg), env(safe-area-inset-top));
+    padding-bottom: max(var(--spacing-lg), env(safe-area-inset-bottom));
+    padding-left: max(var(--spacing-lg), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-lg), env(safe-area-inset-right));
+  }
+}

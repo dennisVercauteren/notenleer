@@ -1,0 +1,15 @@
+.exercise-staff {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 var(--spacing-sm);
+}
+
+/* Landscape - wider staff */
+@media (min-width: 900px) {
+  .exercise-staff {
+    max-width: 900px;
+  }
+}

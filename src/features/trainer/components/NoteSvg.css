@@ -1,0 +1,51 @@
+.note-group {
+  opacity: 1;
+}
+
+.note--clickable {
+  cursor: pointer;
+}
+
+.note--active .note-head {
+  filter: drop-shadow(0 0 4px var(--note-color));
+}
+
+/* Ledger lines */
+.ledger-line {
+  stroke: var(--color-staff-line);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+/* Note head */
+.note-head {
+  fill: var(--note-color, var(--color-note));
+  transition: fill var(--duration-feedback) var(--easing-default);
+}
+
+/* Correct answer pulse */
+.note-group--correct .note-head {
+  animation: correctPulse 150ms var(--easing-out);
+}
+
+/* Note label as SVG text */
+.note-label-svg {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  fill: var(--note-color, var(--color-foreground));
+}
+
+/* Subtle pulse for correct answer */
+@keyframes correctPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
