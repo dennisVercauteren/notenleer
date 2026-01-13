@@ -31,7 +31,6 @@ export const MainPage: React.FC = () => {
     startSession,
     resetSession,
     submitAnswer,
-    highScore,
     isNewHighScore,
     replayCurrentNote,
   } = useTrainerSession({
