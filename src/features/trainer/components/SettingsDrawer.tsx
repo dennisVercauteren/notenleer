@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { Difficulty } from '../types'
+import { Difficulty, HighScore } from '../types'
 import { DifficultySelector } from './DifficultySelector'
 import { ClefSlider } from './ClefSlider'
 import './SettingsDrawer.css'
@@ -11,6 +11,8 @@ interface SettingsDrawerProps {
   clefRatio: number
   onDifficultyChange: (difficulty: Difficulty) => void
   onClefRatioChange: (ratio: number) => void
+  isLevelUnlocked: (difficulty: Difficulty) => boolean
+  highScores: HighScore
 }
 
 export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
@@ -20,6 +22,8 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
   clefRatio,
   onDifficultyChange,
   onClefRatioChange,
+  isLevelUnlocked,
+  highScores,
 }) => {
   const drawerRef = useRef<HTMLDivElement>(null)
 
@@ -83,6 +87,8 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             <DifficultySelector
               value={difficulty}
               onChange={onDifficultyChange}
+              isLevelUnlocked={isLevelUnlocked}
+              highScores={highScores}
             />
           </div>
 

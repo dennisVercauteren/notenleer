@@ -21,7 +21,6 @@ interface UseTrainerSessionOptions {
 interface UseTrainerSessionReturn {
   state: SessionState
   startSession: () => void
-  resetSession: () => void
   submitAnswer: (answer: NoteName) => void
   highScore: number
   isNewHighScore: boolean
@@ -40,6 +39,27 @@ const initialState: SessionState = {
 }
 
 /**
+ * Check if difficulty shows labels from the start
+ */
+function showsLabelsFromStart(difficulty: Difficulty): boolean {
+  return difficulty === 'easy' || difficulty === 'lessEasy'
+}
+
+/**
+ * Check if difficulty shows labels after answering (for previous note)
+ */
+function showsLabelsAfterAnswer(difficulty: Difficulty): boolean {
+  return difficulty === 'medium' || difficulty === 'hard'
+}
+
+/**
+ * Check if difficulty has audio enabled
+ */
+function hasAudioEnabled(difficulty: Difficulty): boolean {
+  return difficulty !== 'expert'
+}
+
+/**
  * Hook for managing the trainer session state
  */
 export function useTrainerSession({
@@ -54,22 +74,21 @@ export function useTrainerSession({
   const [state, setState] = useState<SessionState>(initialState)
 
   const highScore = getHighScore(difficulty)
-
-  // Reset session to initial state
-  const resetSession = useCallback(() => {
-    setState(initialState)
-    setIsNewHighScore(false)
-  }, [])
+  const audioEnabled = hasAudioEnabled(difficulty)
 
   // Start a new session
   const startSession = useCallback(() => {
     const sequence = generateNoteSequence(totalNotes, difficulty, clefRatio)
+    
+    // Determine initial label visibility based on difficulty
+    const labelsVisible = showsLabelsFromStart(difficulty)
     
     const notes: ExerciseNote[] = sequence.map((item, index) => ({
       note: item.note,
       clef: item.clef,
       status: index === 0 ? 'active' : 'pending',
       attempts: 0,
+      showLabel: labelsVisible,
     }))
 
     setState({
@@ -85,43 +104,46 @@ export function useTrainerSession({
 
     setIsNewHighScore(false)
 
-    // Play the first note (for easy/medium)
-    if (difficulty !== 'hard' && onNotePlay && notes.length > 0) {
+    // Play the first note (if audio enabled)
+    if (audioEnabled && onNotePlay && notes.length > 0) {
       setTimeout(() => {
         onNotePlay(notes[0].note.midiNote)
       }, 500)
     }
-  }, [difficulty, clefRatio, totalNotes, onNotePlay])
+  }, [difficulty, clefRatio, totalNotes, onNotePlay, audioEnabled])
 
   // Replay current note
   const replayCurrentNote = useCallback(() => {
     if (!state.isActive || state.isComplete) return
-    if (difficulty === 'hard') return
+    if (!audioEnabled) return
     
     const currentNote = state.notes[state.currentNoteIndex]
     if (currentNote && onNotePlay) {
       onNotePlay(currentNote.note.midiNote)
     }
-  }, [state, difficulty, onNotePlay])
+  }, [state, audioEnabled, onNotePlay])
 
   // Move to next note
   const moveToNextNote = useCallback(
-    (newNotes: ExerciseNote[], newScore: number) => {
+    (newNotes: ExerciseNote[], newScore: number, revealPreviousLabel: boolean) => {
       const nextIndex = state.currentNoteIndex + 1
+
+      // If medium/hard, reveal the label of the answered note
+      if (revealPreviousLabel) {
+        newNotes[state.currentNoteIndex] = {
+          ...newNotes[state.currentNoteIndex],
+          showLabel: true,
+        }
+      }
 
       if (nextIndex >= totalNotes) {
         // Session complete
-        const finalNotes = newNotes.map((n) => ({
-          ...n,
-          status: n.status as ExerciseNote['status'],
-        }))
-
         setState((prev) => ({
           ...prev,
           currentNoteIndex: nextIndex,
           score: newScore,
           isComplete: true,
-          notes: finalNotes,
+          notes: newNotes,
         }))
 
         const isNew = updateHighScore(difficulty, newScore)
@@ -140,15 +162,15 @@ export function useTrainerSession({
           notes: updatedNotes,
         }))
 
-        // Play next note (for easy/medium)
-        if (difficulty !== 'hard' && onNotePlay) {
+        // Play next note (if audio enabled)
+        if (audioEnabled && onNotePlay) {
           setTimeout(() => {
             onNotePlay(updatedNotes[nextIndex].note.midiNote)
           }, 400)
         }
       }
     },
-    [state.currentNoteIndex, totalNotes, difficulty, onNotePlay, updateHighScore]
+    [state.currentNoteIndex, totalNotes, difficulty, onNotePlay, updateHighScore, audioEnabled]
   )
 
   // Submit an answer
@@ -162,6 +184,7 @@ export function useTrainerSession({
 
       const isCorrect = answer === currentNote.note.name
       const newAttempts = currentNote.attempts + 1
+      const revealLabel = showsLabelsAfterAnswer(difficulty)
 
       let newNotes = [...state.notes]
       let newScore = state.score
@@ -175,7 +198,7 @@ export function useTrainerSession({
         }
         newScore += 1
 
-        setTimeout(() => moveToNextNote(newNotes, newScore), 400)
+        setTimeout(() => moveToNextNote(newNotes, newScore, revealLabel), 400)
       } else {
         // Wrong answer
         if (newAttempts >= MAX_ATTEMPTS) {
@@ -187,7 +210,7 @@ export function useTrainerSession({
           }
           newScore -= 1
 
-          setTimeout(() => moveToNextNote(newNotes, newScore), 600)
+          setTimeout(() => moveToNextNote(newNotes, newScore, revealLabel), 600)
         } else {
           // First wrong: warning
           newNotes[currentIndex] = {
@@ -204,13 +227,12 @@ export function useTrainerSession({
         score: newScore,
       }))
     },
-    [state, moveToNextNote]
+    [state, moveToNextNote, difficulty]
   )
 
   return {
     state,
     startSession,
-    resetSession,
     submitAnswer,
     highScore,
     isNewHighScore,

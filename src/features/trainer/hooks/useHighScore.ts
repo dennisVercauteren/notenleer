@@ -1,15 +1,18 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Difficulty, HighScore } from '../types'
+import { Difficulty, HighScore, DIFFICULTY_ORDER } from '../types'
 
 const STORAGE_KEY = 'notenleer-highscores'
+const PERFECT_SCORE = 10
 
 /**
  * Default highscores for all difficulty levels
  */
 const DEFAULT_HIGHSCORES: HighScore = {
   easy: 0,
+  lessEasy: 0,
   medium: 0,
   hard: 0,
+  expert: 0,
 }
 
 /**
@@ -47,6 +50,8 @@ interface UseHighScoreReturn {
   getHighScore: (difficulty: Difficulty) => number
   updateHighScore: (difficulty: Difficulty, score: number) => boolean
   resetHighScores: () => void
+  isLevelUnlocked: (difficulty: Difficulty) => boolean
+  getUnlockedLevels: () => Difficulty[]
 }
 
 /**
@@ -87,6 +92,27 @@ export function useHighScore(): UseHighScoreReturn {
     [highScores]
   )
 
+  // Check if a level is unlocked
+  // A level is unlocked if the previous level has a perfect score (10/10)
+  const isLevelUnlocked = useCallback(
+    (difficulty: Difficulty): boolean => {
+      const levelIndex = DIFFICULTY_ORDER.indexOf(difficulty)
+      
+      // First level is always unlocked
+      if (levelIndex === 0) return true
+      
+      // Check if previous level has perfect score
+      const previousLevel = DIFFICULTY_ORDER[levelIndex - 1]
+      return highScores[previousLevel] >= PERFECT_SCORE
+    },
+    [highScores]
+  )
+
+  // Get list of unlocked levels
+  const getUnlockedLevels = useCallback((): Difficulty[] => {
+    return DIFFICULTY_ORDER.filter(level => isLevelUnlocked(level))
+  }, [isLevelUnlocked])
+
   // Reset all highscores
   const resetHighScores = useCallback(() => {
     setHighScores(DEFAULT_HIGHSCORES)
@@ -98,5 +124,7 @@ export function useHighScore(): UseHighScoreReturn {
     getHighScore,
     updateHighScore,
     resetHighScores,
+    isLevelUnlocked,
+    getUnlockedLevels,
   }
 }

@@ -5,7 +5,7 @@ export type NoteName = 'do' | 're' | 'mi' | 'fa' | 'sol' | 'la' | 'si'
 export type Clef = 'sol' | 'fa'
 
 /** Difficulty levels */
-export type Difficulty = 'easy' | 'medium' | 'hard'
+export type Difficulty = 'easy' | 'lessEasy' | 'medium' | 'hard' | 'expert'
 
 /** Note status during gameplay */
 export type NoteStatus = 'neutral' | 'active' | 'pending' | 'warning' | 'error' | 'correct'
@@ -28,6 +28,8 @@ export interface ExerciseNote {
   clef: Clef
   status: NoteStatus
   attempts: number
+  /** Whether to show the label (for medium/hard after answering) */
+  showLabel: boolean
 }
 
 /** Game session state */
@@ -50,11 +52,13 @@ export interface SessionState {
   notes: ExerciseNote[]
 }
 
-/** Highscore entry */
+/** Highscore entry for all difficulty levels */
 export interface HighScore {
   easy: number
+  lessEasy: number
   medium: number
   hard: number
+  expert: number
 }
 
 /** Settings for the trainer */
@@ -62,3 +66,6 @@ export interface TrainerSettings {
   difficulty: Difficulty
   clefRatio: number
 }
+
+/** Difficulty level order for unlocking */
+export const DIFFICULTY_ORDER: Difficulty[] = ['easy', 'lessEasy', 'medium', 'hard', 'expert']

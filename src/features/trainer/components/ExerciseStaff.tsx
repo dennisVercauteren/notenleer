@@ -11,14 +11,20 @@ interface ExerciseStaffProps {
   currentIndex: number
 }
 
+/**
+ * Check if audio is enabled for this difficulty
+ */
+function hasAudioEnabled(difficulty: Difficulty): boolean {
+  return difficulty !== 'expert'
+}
+
 export const ExerciseStaff: React.FC<ExerciseStaffProps> = ({
   notes,
   difficulty,
   onNoteClick,
   currentIndex,
 }) => {
-  const showLabels = difficulty === 'easy'
-  const audioEnabled = difficulty !== 'hard'
+  const audioEnabled = hasAudioEnabled(difficulty)
 
   // Calculate note positions - distribute evenly across staff
   const staffWidth = STAFF_CONFIG.width
@@ -48,7 +54,7 @@ export const ExerciseStaff: React.FC<ExerciseStaffProps> = ({
               noteName={exerciseNote.note.name}
               onClick={() => onNoteClick?.(index)}
               clickable={audioEnabled && isCurrentNote}
-              showLabel={showLabels}
+              showLabel={exerciseNote.showLabel}
               isActive={isCurrentNote}
             />
           )

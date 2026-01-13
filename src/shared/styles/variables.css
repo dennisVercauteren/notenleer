@@ -17,14 +17,19 @@
 
 :root {
   /* Simplified palette - black/white + accent */
-  --color-background: #ffffff;
+  --color-background: #f8fafc;
   --color-foreground: #000000;
-  --color-text: #000000;
-  --color-text-muted: #666666;
+  --color-text: #1e293b;
+  --color-text-light: #64748b;
+  --color-text-muted: #94a3b8;
   
   /* Staff colors */
-  --color-staff-line: #000000;
-  --color-note: #000000;
+  --color-staff-line: #1e293b;
+  --color-note: #1e293b;
+  
+  /* Primary color */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
   
   /* Feedback colors */
   --color-accent: #2563eb;
@@ -33,16 +38,25 @@
   --color-success: #16a34a;
   
   /* Note state colors */
-  --color-note-active: #000000;
-  --color-note-pending: #cccccc;
+  --color-note-active: #1e293b;
+  --color-note-pending: #cbd5e1;
   --color-note-warning: #f59e0b;
   --color-note-error: #dc2626;
   --color-note-correct: #16a34a;
   
-  /* Difficulty colors (kept for indicator) */
+  /* Difficulty colors */
   --color-easy: #16a34a;
   --color-medium: #f59e0b;
   --color-hard: #dc2626;
+  
+  /* Note name colors (for labels) */
+  --color-do: #ef4444;
+  --color-re: #f97316;
+  --color-mi: #eab308;
+  --color-fa: #22c55e;
+  --color-sol: #06b6d4;
+  --color-la: #8b5cf6;
+  --color-si: #ec4899;
   
   /* Spacing - larger for touch */
   --spacing-xs: 0.25rem;
@@ -65,6 +79,11 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   
   /* Animation */
   --duration-fast: 100ms;

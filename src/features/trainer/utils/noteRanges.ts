@@ -48,7 +48,6 @@ function calculateMidiNote(noteName: NoteName, octave: number): number {
 function trebleClefNote(position: number): Note {
   // Treble clef position 0 = B4 (si4)
   // B is index 6 in NOTE_SEQUENCE, octave 4
-  // Each position step is a half step on the staff
   const baseNoteIndex = 6 // si
   const baseOctave = 4
   
@@ -102,20 +101,22 @@ export function getNote(position: number, clef: Clef): Note {
  * Get available staff positions for a difficulty level
  * 
  * Easy: Only within staff (positions -4 to 4)
- * Medium: Within staff + 1-2 ledger lines (positions -7 to 7)
- * Hard: Extended range with multiple ledger lines (positions -10 to 10)
+ * LessEasy: Within staff + 1-2 ledger lines (positions -7 to 7)
+ * Medium: Only within staff (positions -4 to 4)
+ * Hard: Within staff + ledger lines (positions -7 to 7)
+ * Expert: Extended range with multiple ledger lines (positions -7 to 7)
  */
 export function getPositionRange(difficulty: Difficulty): { min: number; max: number } {
   switch (difficulty) {
     case 'easy':
+    case 'medium':
       // Notes within the 5 lines and 4 spaces of the staff
       return { min: -4, max: 4 }
-    case 'medium':
-      // Include 1-2 ledger lines above and below
-      return { min: -7, max: 7 }
+    case 'lessEasy':
     case 'hard':
-      // Extended range with multiple ledger lines
-      return { min: -10, max: 10 }
+    case 'expert':
+      // Include ledger lines above and below
+      return { min: -7, max: 7 }
   }
 }
 
