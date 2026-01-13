@@ -6,7 +6,6 @@ import {
   NoteName,
 } from '../types'
 import { generateNoteSequence } from '../utils/random'
-import { useHighScore } from './useHighScore'
 
 const DEFAULT_TOTAL_NOTES = 10
 const MAX_ATTEMPTS = 2
@@ -16,15 +15,15 @@ interface UseTrainerSessionOptions {
   clefRatio: number
   totalNotes?: number
   onNotePlay?: (midiNote: number) => void
+  onScoreAdd?: (score: number) => boolean // Returns true if level unlocked
 }
 
 interface UseTrainerSessionReturn {
   state: SessionState
   startSession: () => void
   submitAnswer: (answer: NoteName) => void
-  highScore: number
-  isNewHighScore: boolean
   replayCurrentNote: () => void
+  levelUnlocked: boolean
 }
 
 const initialState: SessionState = {
@@ -67,13 +66,11 @@ export function useTrainerSession({
   clefRatio,
   totalNotes = DEFAULT_TOTAL_NOTES,
   onNotePlay,
+  onScoreAdd,
 }: UseTrainerSessionOptions): UseTrainerSessionReturn {
-  const { getHighScore, updateHighScore } = useHighScore()
-  const [isNewHighScore, setIsNewHighScore] = useState(false)
-
   const [state, setState] = useState<SessionState>(initialState)
+  const [levelUnlocked, setLevelUnlocked] = useState(false)
 
-  const highScore = getHighScore(difficulty)
   const audioEnabled = hasAudioEnabled(difficulty)
 
   // Start a new session
@@ -102,7 +99,7 @@ export function useTrainerSession({
       notes,
     })
 
-    setIsNewHighScore(false)
+    setLevelUnlocked(false)
 
     // Play the first note (if audio enabled)
     if (audioEnabled && onNotePlay && notes.length > 0) {
@@ -137,7 +134,10 @@ export function useTrainerSession({
       }
 
       if (nextIndex >= totalNotes) {
-        // Session complete
+        // Session complete - add score to cumulative total
+        const didUnlock = onScoreAdd?.(Math.max(0, newScore)) || false
+        setLevelUnlocked(didUnlock)
+
         setState((prev) => ({
           ...prev,
           currentNoteIndex: nextIndex,
@@ -145,9 +145,6 @@ export function useTrainerSession({
           isComplete: true,
           notes: newNotes,
         }))
-
-        const isNew = updateHighScore(difficulty, newScore)
-        setIsNewHighScore(isNew)
       } else {
         // Update notes: next becomes active
         const updatedNotes = newNotes.map((n, i) => ({
@@ -170,7 +167,7 @@ export function useTrainerSession({
         }
       }
     },
-    [state.currentNoteIndex, totalNotes, difficulty, onNotePlay, updateHighScore, audioEnabled]
+    [state.currentNoteIndex, totalNotes, onNotePlay, onScoreAdd, audioEnabled]
   )
 
   // Submit an answer
@@ -202,13 +199,12 @@ export function useTrainerSession({
       } else {
         // Wrong answer
         if (newAttempts >= MAX_ATTEMPTS) {
-          // Second wrong: -1 point
+          // Second wrong: no points
           newNotes[currentIndex] = {
             ...currentNote,
             status: 'error',
             attempts: newAttempts,
           }
-          newScore -= 1
 
           setTimeout(() => moveToNextNote(newNotes, newScore, revealLabel), 600)
         } else {
@@ -234,8 +230,7 @@ export function useTrainerSession({
     state,
     startSession,
     submitAnswer,
-    highScore,
-    isNewHighScore,
     replayCurrentNote,
+    levelUnlocked,
   }
 }

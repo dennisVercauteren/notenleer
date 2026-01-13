@@ -1,7 +1,8 @@
 .staff-svg {
-  display: block;
+  width: 100%;
   max-width: 100%;
   height: auto;
+  display: block;
 }
 
 .staff-line {
@@ -12,6 +13,6 @@
 
 .staff-clef {
   font-family: var(--font-music);
-  font-size: 40px;
-  fill: var(--color-staff-line);
+  font-size: 48px;
+  fill: var(--color-foreground);
 }

@@ -8,6 +8,7 @@
 
 html, body, #root {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -19,6 +20,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   /* Prevent pull-to-refresh on touch devices */
   overscroll-behavior: none;
+  overflow: hidden;
 }
 
 button {

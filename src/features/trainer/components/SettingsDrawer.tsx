@@ -12,6 +12,7 @@ interface SettingsDrawerProps {
   onDifficultyChange: (difficulty: Difficulty) => void
   onClefRatioChange: (ratio: number) => void
   isLevelUnlocked: (difficulty: Difficulty) => boolean
+  getProgress: (difficulty: Difficulty) => number
   highScores: HighScore
 }
 
@@ -23,6 +24,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
   onDifficultyChange,
   onClefRatioChange,
   isLevelUnlocked,
+  getProgress,
   highScores,
 }) => {
   const drawerRef = useRef<HTMLDivElement>(null)
@@ -88,6 +90,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
               value={difficulty}
               onChange={onDifficultyChange}
               isLevelUnlocked={isLevelUnlocked}
+              getProgress={getProgress}
               highScores={highScores}
             />
           </div>

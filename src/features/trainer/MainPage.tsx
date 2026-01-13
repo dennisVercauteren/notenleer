@@ -5,6 +5,7 @@ import { ClefSlider } from './components/ClefSlider'
 import { AnswerButtons } from './components/AnswerButtons'
 import { ScoreBar } from './components/ScoreBar'
 import { ExerciseStaff } from './components/ExerciseStaff'
+import { UnlockDialog } from './components/UnlockDialog'
 import { useTrainerSession } from './hooks/useTrainerSession'
 import { useAudio } from './hooks/useAudio'
 import { useHighScore } from './hooks/useHighScore'
@@ -18,9 +19,10 @@ function hasAudioEnabled(difficulty: Difficulty): boolean {
 }
 
 export const MainPage: React.FC = () => {
-  const { highScores, isLevelUnlocked, getUnlockedLevels } = useHighScore()
+  const { highScores, isLevelUnlocked, getUnlockedLevels, addScore, getProgress } = useHighScore()
   const [difficulty, setDifficulty] = useState<Difficulty>('easy')
   const [clefRatio, setClefRatio] = useState(0.5)
+  const [showUnlockDialog, setShowUnlockDialog] = useState(false)
 
   // Ensure selected difficulty is unlocked
   useEffect(() => {
@@ -41,17 +43,27 @@ export const MainPage: React.FC = () => {
     playNote(midiNote)
   }, [initAudio, playNote, audioEnabled])
 
+  // Handle score addition and check for level unlock
+  const handleScoreAdd = useCallback((score: number): boolean => {
+    const didUnlock = addScore(difficulty, score)
+    if (didUnlock) {
+      setShowUnlockDialog(true)
+    }
+    return didUnlock
+  }, [addScore, difficulty])
+
   // Session management
   const {
     state,
     startSession,
     submitAnswer,
-    isNewHighScore,
     replayCurrentNote,
+    levelUnlocked,
   } = useTrainerSession({
     difficulty,
     clefRatio,
     onNotePlay: handleNotePlay,
+    onScoreAdd: handleScoreAdd,
   })
 
   // Start game
@@ -82,6 +94,11 @@ export const MainPage: React.FC = () => {
     startSession()
   }, [initAudio, startSession, audioEnabled])
 
+  // Close unlock dialog
+  const handleCloseUnlockDialog = useCallback(() => {
+    setShowUnlockDialog(false)
+  }, [])
+
   // Determine if buttons should be disabled
   const currentNote = state.notes[state.currentNoteIndex]
   const buttonsDisabled =
@@ -110,6 +127,7 @@ export const MainPage: React.FC = () => {
               onChange={setDifficulty}
               disabled={state.isActive && !state.isComplete}
               isLevelUnlocked={isLevelUnlocked}
+              getProgress={getProgress}
               highScores={highScores}
             />
           </div>
@@ -147,10 +165,10 @@ export const MainPage: React.FC = () => {
         ) : (
           <div className="staff-placeholder">
             <p className="staff-placeholder__text">
-              Kies je niveau en klik op "Start" om te beginnen
+              Kies je niveau en klik op "Start"
             </p>
             <p className="staff-placeholder__hint">
-              🔒 Haal 10/10 om het volgende niveau te ontgrendelen
+              🎯 Verzamel 50 punten om het volgende niveau te ontgrendelen
             </p>
           </div>
         )}
@@ -160,29 +178,28 @@ export const MainPage: React.FC = () => {
       <section className="controls-section">
         {state.isComplete ? (
           <div className="complete-panel">
-            <h2 className="complete-title">
-              {isNewHighScore ? '🎉 Nieuwe Hoogste Score!' : 'Goed gedaan!'}
-            </h2>
             <p className="complete-score">
-              Score: <strong>{state.score}</strong> / {state.totalNotes}
+              +<strong>{state.score}</strong> punten
             </p>
-            {state.score >= 10 && (
-              <p className="complete-unlock">🔓 Volgend niveau ontgrendeld!</p>
-            )}
             <button className="start-button" onClick={handleRestart}>
-              Opnieuw Spelen
+              Opnieuw
             </button>
           </div>
         ) : state.isActive ? (
           <AnswerButtons onAnswer={handleAnswer} disabled={buttonsDisabled} />
         ) : (
-          <div className="start-panel">
-            <button className="start-button" onClick={handleStart}>
-              Start Oefening
-            </button>
-          </div>
+          <button className="start-button" onClick={handleStart}>
+            Start
+          </button>
         )}
       </section>
+
+      {/* Unlock Dialog */}
+      <UnlockDialog
+        isOpen={showUnlockDialog || levelUnlocked}
+        onClose={handleCloseUnlockDialog}
+        unlockedLevel={difficulty}
+      />
     </main>
   )
 }

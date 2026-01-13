@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Difficulty, HighScore, DIFFICULTY_ORDER } from '../types'
 
 const STORAGE_KEY = 'notenleer-highscores'
-const PERFECT_SCORE = 10
+const UNLOCK_THRESHOLD = 50 // 50 points cumulative to unlock next level
 
 /**
  * Default highscores for all difficulty levels
@@ -48,14 +48,16 @@ function saveHighScores(scores: HighScore): void {
 interface UseHighScoreReturn {
   highScores: HighScore
   getHighScore: (difficulty: Difficulty) => number
-  updateHighScore: (difficulty: Difficulty, score: number) => boolean
+  addScore: (difficulty: Difficulty, score: number) => boolean
   resetHighScores: () => void
   isLevelUnlocked: (difficulty: Difficulty) => boolean
   getUnlockedLevels: () => Difficulty[]
+  getProgress: (difficulty: Difficulty) => number
 }
 
 /**
- * Hook for managing highscores with localStorage persistence
+ * Hook for managing cumulative scores with localStorage persistence
+ * Players need 50 points total on a level to unlock the next
  */
 export function useHighScore(): UseHighScoreReturn {
   const [highScores, setHighScores] = useState<HighScore>(DEFAULT_HIGHSCORES)
@@ -65,7 +67,7 @@ export function useHighScore(): UseHighScoreReturn {
     setHighScores(loadHighScores())
   }, [])
 
-  // Get highscore for a specific difficulty
+  // Get cumulative score for a specific difficulty
   const getHighScore = useCallback(
     (difficulty: Difficulty): number => {
       return highScores[difficulty]
@@ -73,27 +75,41 @@ export function useHighScore(): UseHighScoreReturn {
     [highScores]
   )
 
-  // Update highscore if new score is higher
-  // Returns true if highscore was updated
-  const updateHighScore = useCallback(
+  // Add score to cumulative total
+  // Returns true if this caused a level unlock
+  const addScore = useCallback(
     (difficulty: Difficulty, score: number): boolean => {
-      const currentHigh = highScores[difficulty]
-      if (score > currentHigh) {
-        const newScores = {
-          ...highScores,
-          [difficulty]: score,
-        }
-        setHighScores(newScores)
-        saveHighScores(newScores)
-        return true
+      if (score <= 0) return false
+      
+      const previousTotal = highScores[difficulty]
+      const newTotal = previousTotal + score
+      const wasUnlocked = previousTotal >= UNLOCK_THRESHOLD
+      const isNowUnlocked = newTotal >= UNLOCK_THRESHOLD
+      
+      const newScores = {
+        ...highScores,
+        [difficulty]: newTotal,
       }
-      return false
+      setHighScores(newScores)
+      saveHighScores(newScores)
+      
+      // Return true if this score caused a new unlock
+      return !wasUnlocked && isNowUnlocked
+    },
+    [highScores]
+  )
+
+  // Get progress towards unlock (0-100%)
+  const getProgress = useCallback(
+    (difficulty: Difficulty): number => {
+      const score = highScores[difficulty]
+      return Math.min(100, Math.round((score / UNLOCK_THRESHOLD) * 100))
     },
     [highScores]
   )
 
   // Check if a level is unlocked
-  // A level is unlocked if the previous level has a perfect score (10/10)
+  // A level is unlocked if the previous level has 50+ points
   const isLevelUnlocked = useCallback(
     (difficulty: Difficulty): boolean => {
       const levelIndex = DIFFICULTY_ORDER.indexOf(difficulty)
@@ -101,9 +117,9 @@ export function useHighScore(): UseHighScoreReturn {
       // First level is always unlocked
       if (levelIndex === 0) return true
       
-      // Check if previous level has perfect score
+      // Check if previous level has reached threshold
       const previousLevel = DIFFICULTY_ORDER[levelIndex - 1]
-      return highScores[previousLevel] >= PERFECT_SCORE
+      return highScores[previousLevel] >= UNLOCK_THRESHOLD
     },
     [highScores]
   )
@@ -122,9 +138,10 @@ export function useHighScore(): UseHighScoreReturn {
   return {
     highScores,
     getHighScore,
-    updateHighScore,
+    addScore,
     resetHighScores,
     isLevelUnlocked,
     getUnlockedLevels,
+    getProgress,
   }
 }

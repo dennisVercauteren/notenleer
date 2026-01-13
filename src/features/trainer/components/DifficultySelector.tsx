@@ -7,47 +7,24 @@ interface DifficultySelectorProps {
   onChange: (difficulty: Difficulty) => void
   disabled?: boolean
   isLevelUnlocked: (difficulty: Difficulty) => boolean
+  getProgress: (difficulty: Difficulty) => number
   highScores: Record<Difficulty, number>
 }
 
 interface DifficultyOption {
   value: Difficulty
   label: string
-  description: string
   color: string
 }
 
+const UNLOCK_THRESHOLD = 50
+
 const OPTIONS: DifficultyOption[] = [
-  {
-    value: 'easy',
-    label: 'Makkelijk',
-    description: 'Met labels, binnen notenbalk, met geluid',
-    color: 'var(--color-easy)',
-  },
-  {
-    value: 'lessEasy',
-    label: 'Minder Makkelijk',
-    description: 'Met labels, ook hulplijntjes, met geluid',
-    color: '#84cc16',
-  },
-  {
-    value: 'medium',
-    label: 'Gemiddeld',
-    description: 'Label na antwoord, binnen notenbalk, met geluid',
-    color: 'var(--color-medium)',
-  },
-  {
-    value: 'hard',
-    label: 'Moeilijk',
-    description: 'Label na antwoord, ook hulplijntjes, met geluid',
-    color: '#f97316',
-  },
-  {
-    value: 'expert',
-    label: 'Expert',
-    description: 'Geen labels, ook hulplijntjes, zonder geluid',
-    color: 'var(--color-hard)',
-  },
+  { value: 'easy', label: 'Makkelijk', color: '#16a34a' },
+  { value: 'lessEasy', label: 'Minder Makkelijk', color: '#84cc16' },
+  { value: 'medium', label: 'Gemiddeld', color: '#f59e0b' },
+  { value: 'hard', label: 'Moeilijk', color: '#f97316' },
+  { value: 'expert', label: 'Expert', color: '#dc2626' },
 ]
 
 export const DifficultySelector: React.FC<DifficultySelectorProps> = ({
@@ -55,6 +32,7 @@ export const DifficultySelector: React.FC<DifficultySelectorProps> = ({
   onChange,
   disabled = false,
   isLevelUnlocked,
+  getProgress,
   highScores,
 }) => {
   return (
@@ -65,27 +43,32 @@ export const DifficultySelector: React.FC<DifficultySelectorProps> = ({
           const isUnlocked = isLevelUnlocked(option.value)
           const isSelected = value === option.value
           const score = highScores[option.value]
-          const isPerfect = score >= 10
+          const progress = getProgress(option.value)
+          const isComplete = score >= UNLOCK_THRESHOLD
 
           return (
             <button
               key={option.value}
-              className={`difficulty-btn ${isSelected ? 'difficulty-btn--selected' : ''} ${!isUnlocked ? 'difficulty-btn--locked' : ''} ${isPerfect ? 'difficulty-btn--perfect' : ''}`}
+              className={`difficulty-btn ${isSelected ? 'difficulty-btn--selected' : ''} ${!isUnlocked ? 'difficulty-btn--locked' : ''} ${isComplete ? 'difficulty-btn--complete' : ''}`}
               style={{ '--btn-color': option.color } as React.CSSProperties}
               onClick={() => isUnlocked && onChange(option.value)}
               disabled={disabled || !isUnlocked}
               role="radio"
               aria-checked={isSelected}
-              title={!isUnlocked ? 'Haal eerst 10/10 op het vorige niveau' : option.description}
+              title={!isUnlocked ? 'Haal 50 punten op het vorige niveau' : `${score}/${UNLOCK_THRESHOLD} punten`}
             >
-              <div className="difficulty-btn__header">
-                <span className="difficulty-btn__number">{index + 1}</span>
-                {!isUnlocked && <span className="difficulty-btn__lock">🔒</span>}
-                {isPerfect && <span className="difficulty-btn__star">⭐</span>}
-              </div>
+              <span className="difficulty-btn__number">{index + 1}</span>
+              {!isUnlocked && <span className="difficulty-btn__lock">🔒</span>}
+              {isComplete && <span className="difficulty-btn__star">⭐</span>}
               <span className="difficulty-btn__label">{option.label}</span>
               {isUnlocked && (
-                <span className="difficulty-btn__score">{score}/10</span>
+                <div className="difficulty-btn__progress">
+                  <div 
+                    className="difficulty-btn__progress-bar"
+                    style={{ width: `${progress}%` }}
+                  />
+                  <span className="difficulty-btn__score">{score}/{UNLOCK_THRESHOLD}</span>
+                </div>
               )}
             </button>
           )
